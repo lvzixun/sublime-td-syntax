@@ -1,0 +1,100 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: td
+file_extensions:
+  - td
+scope: source.td
+contexts:
+  main:
+    - include : comment
+    - include : struct
+    - include : global_filed
+  comment:
+    - match: \#
+      scope: punctuation.definition.comment.td
+      push:
+        - meta_include_prototype: false
+        - meta_scope: comment.block.td
+        - match: $
+          pop: true
+
+  struct:
+    - match: ([A-Za-z][A-Za-z0-9_.]*)\s*(\((.+)\))?\s*\{
+      scope: punctuation.section.struct.td
+      captures:
+        1: entity.name.class.td
+        3: string
+      push:
+        - meta_scope: meta.struct.td
+        - match: '\}'
+          scope: punctuation.section.struct.td
+          pop: true
+        - include: comment
+        - include: field
+
+  internal:
+    - match: (integer|string|boolean)
+      scope: punctuation.section.internal.td
+      captures:
+        1: storage.type.td
+
+  word:
+    - match: ([A-Za-z][A-Za-z0-9_.]*)
+      scope: punctuation.section.word.td
+      captures:
+        1: entity.name.class.td
+
+  map:
+    - match: \<
+      scope: punctuation.section.map.td
+      push:
+        - meta_scope: meta.map.td
+        - match: '\>'
+          scope: punctuation.section.map.td
+          pop: true
+        - include: internal
+        - include: word
+
+  list:
+      - match: \[
+        scope: punctuation.section.list.td
+        push:
+          - meta_scope: meta.list.td
+          - match: '\]'
+            scope: punctuation.section.list.td
+            pop: true
+          - include: internal
+          - include: word
+
+  global_filed:
+    - match: ([A-Za-z][A-Za-z0-9_.]*)\s+
+      scope: punctuation.section.field.td
+      captures:
+        1: variable
+
+      push:
+        - meta_scope: meta.field.td
+        - match: '\n'
+          scope: punctuation.section.field.td
+          pop: true
+        - include: list
+        - include: map
+        - include: comment
+
+  field:
+    - match: ([A-Za-z][A-Za-z0-9_.]*)\s+
+      scope: punctuation.section.field.td
+      captures:
+        1: variable
+
+      push:
+        - meta_scope: meta.field.td
+        - match: '\n'
+          scope: punctuation.section.field.td
+          pop: true
+        - include: internal
+        - include: word
+        - include: list
+        - include: map
+        - include: comment
